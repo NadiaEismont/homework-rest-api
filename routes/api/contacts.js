@@ -2,7 +2,7 @@ const express = require("express");
 
 const router = express.Router();
 const contacts = require("../../models/contacts");
-const nanoid = require("nanoid").nanoid;
+const { nanoid } = require("nanoid");
 const Joi = require("joi");
 
 const schema = Joi.object({
