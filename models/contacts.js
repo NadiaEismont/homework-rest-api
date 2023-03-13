@@ -1,9 +1,17 @@
 const nanoid = require("nanoid").nanoid;
+const mongoose = require("mongoose");
 
 const fs = require("fs").promises;
 const path = require("path");
 
 const contactsPath = path.join(__dirname, "models", "contacts.json");
+
+mongoose.Promise = global.Promise;
+mongoose.connect(process.env.DB_HOST, {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useUnifiedTopology: true,
+});
 
 const useContacts = async function () {
   let data = await fs.readFile(contactsPath, "utf8");
