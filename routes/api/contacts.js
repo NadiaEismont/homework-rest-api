@@ -16,7 +16,7 @@ const schema = Joi.object({
 });
 
 router.get("/", async (req, res, next) => {
-  const list = contacts.listContacts();
+  const list = await contacts.listContacts();
   res.json({
     status: "success",
     code: 200,
@@ -27,7 +27,7 @@ router.get("/", async (req, res, next) => {
 router.get("/:contactId", async (req, res, next) => {
   const { contactId } = req.params;
 
-  const contactById = contacts.getContactById(contactId);
+  const contactById = await contacts.getContactById(contactId);
   if (!contactById) {
     res.status(404).json({ message: "This contact doesn't exist" });
   }
@@ -41,7 +41,7 @@ router.get("/:contactId", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
   const { name, email, phone } = req.body;
-  const { error, _ } = schema.validate({ name, email, phone });
+  const { error } = schema.validate({ name, email, phone });
   if (error) {
     res.status(400).json({ message: "missing required name field" });
     return;
@@ -53,7 +53,7 @@ router.post("/", async (req, res, next) => {
     phone,
   };
 
-  const addContact = contacts.addContact(task);
+  const addContact = await contacts.addContact(task);
   res.status(201).json({
     status: "success",
     code: 201,
@@ -64,11 +64,11 @@ router.post("/", async (req, res, next) => {
 router.delete("/:contactId", async (req, res, next) => {
   const { contactId } = req.params;
 
-  const contactById = contacts.getContactById(contactId);
+  const contactById = await contacts.getContactById(contactId);
   if (!contactById) {
     res.status(404).json({ message: "This contact doesn't exist" });
   }
-  contacts.removeContact(contactId);
+  await contacts.removeContact(contactId);
   res.json({
     status: "success",
     code: 200,
@@ -79,11 +79,12 @@ router.delete("/:contactId", async (req, res, next) => {
 router.put("/:contactId", async (req, res, next) => {
   const { contactId } = req.params;
 
-  const contactById = contacts.getContactById(contactId);
+  const contactById = await contacts.getContactById(contactId);
   if (!contactById) {
     res.status(404).json({ message: "This contact doesn't exist" });
   }
-  contacts.removeContact(contactId);
+
+  await contacts.removeContact(contactId);
   const { name, email, phone } = req.body;
   if (!name || !email || !phone) {
     res.status(400).json({ message: "missing required name field" });
@@ -96,7 +97,7 @@ router.put("/:contactId", async (req, res, next) => {
     phone,
   };
 
-  const addContact = contacts.addContact(task);
+  const addContact = await contacts.addContact(task);
   res.status(201).json({
     status: "success",
     code: 201,

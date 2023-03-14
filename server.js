@@ -5,11 +5,11 @@ const PORT = process.env.PORT || 3000;
 const uriDb = process.env.DB_HOST;
 
 const connection = mongoose.connect(uriDb, {
-  promiseLibrary: global.Promise,
+  // promiseLibrary: global.Promise,
   useNewUrlParser: true,
-  useCreateIndex: true,
+  // useCreateIndex: true,
   useUnifiedTopology: true,
-  useFindAndModify: false,
+  // useFindAndModify: false,
 });
 
 connection
@@ -20,7 +20,7 @@ connection
       );
     });
   })
-  .catch((err) =>
-    console.log(`Server not running. Error message: ${err.message}`)
-    process.exit(1)
-  );
+  .catch((err) => {
+    console.log(`Server not running. Error message: ${err.message}`);
+    process.exit(1);
+  });

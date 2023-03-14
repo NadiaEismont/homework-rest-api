@@ -1,62 +1,24 @@
-const nanoid = require("nanoid").nanoid;
-const mongoose = require("mongoose");
-
-const fs = require("fs").promises;
-const path = require("path");
-
-const contactsPath = path.join(__dirname, "models", "contacts.json");
-
-mongoose.Promise = global.Promise;
-mongoose.connect(process.env.DB_HOST, {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useUnifiedTopology: true,
-});
-
-const useContacts = async function () {
-  let data = await fs.readFile(contactsPath, "utf8");
-
-  const result = JSON.parse(data);
-  return result;
-};
+const Contact = require("./schemas");
 
 const listContacts = async () => {
-  const result = await useContacts();
-  return result;
+  return Contact.find();
 };
 
 const getContactById = async (contactId) => {
-  const data = await useContacts();
-  const result = data.find((data) => data.id === contactId.toString());
-  return result;
+  return Contact.findOne({ _id: contactId });
 };
 
 async function removeContact(contactId) {
-  const data = await useContacts();
-  const result = data.filter((data) => data.id !== contactId);
-  const newList = JSON.stringify(result);
-
-  try {
-    await fs.writeFile(contactsPath, newList, { encoding: "utf8", flag: "w" });
-  } catch (error) {
-    console.error(error);
-  }
+  return Contact.findByIdAndRemove({ _id: contactId });
 }
 
 const addContact = async (body) => {
-  const data = await useContacts();
-  data.push(body);
-
-  const newList = JSON.stringify(data);
-
-  try {
-    await fs.writeFile(contactsPath, newList, { encoding: "utf8", flag: "w" });
-  } catch (error) {
-    console.error(error);
-  }
+  return Contact.create(body);
 };
 
-const updateContact = async (contactId, body) => {};
+const updateContact = async (contactId, body) => {
+  return Contact.findByIdAndUpdate({ _id: contactId }, body, { new: true });
+};
 
 module.exports = {
   listContacts,
