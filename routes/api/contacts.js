@@ -1,8 +1,6 @@
 const express = require("express");
-
 const router = express.Router();
 const contacts = require("../../models/contacts");
-const { nanoid } = require("nanoid");
 const Joi = require("joi");
 
 const schema = Joi.object({
@@ -46,14 +44,7 @@ router.post("/", async (req, res, next) => {
     res.status(400).json({ message: "missing required name field" });
     return;
   }
-  const task = {
-    id: nanoid(),
-    name,
-    email,
-    phone,
-  };
-
-  const addContact = await contacts.addContact(task);
+  const addContact = await contacts.addContact({ name, email, phone });
   res.status(201).json({
     status: "success",
     code: 201,
@@ -85,16 +76,17 @@ router.put("/:contactId", async (req, res, next) => {
   }
 
   await contacts.removeContact(contactId);
-  const { name, email, phone } = req.body;
+  const { name, email, phone, favorite } = req.body;
   if (!name || !email || !phone) {
     res.status(400).json({ message: "missing required name field" });
     return;
   }
   const task = {
-    id: contactId,
+    _id: contactId,
     name,
     email,
     phone,
+    favorite,
   };
 
   const addContact = await contacts.addContact(task);
@@ -103,6 +95,37 @@ router.put("/:contactId", async (req, res, next) => {
     code: 201,
     data: { addContact },
   });
+});
+
+router.patch("/:contactId/favorite", async (req, res, next) => {
+  const { contactId } = req.params;
+  const { favorite } = req.body;
+
+  if (!favorite) {
+    res.status(400).json({ message: "missing field favorite" });
+    return;
+  }
+
+  try {
+    const result = await contacts.updateContact(contactId, { favorite });
+    if (result) {
+      res.json({
+        status: "success",
+        code: 200,
+        data: { result },
+      });
+    } else {
+      res.status(404).json({
+        status: "error",
+        code: 404,
+        message: `Not found contact  ${contactId}`,
+        data: "Not Found",
+      });
+    }
+  } catch (e) {
+    console.error(e);
+    next(e);
+  }
 });
 
 module.exports = router;
