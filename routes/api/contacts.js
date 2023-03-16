@@ -1,21 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const contacts = require("../../models/contacts");
-const Joi = require("joi");
-
-const schema = Joi.object({
-  name: Joi.string().min(3).max(30).required(),
-
-  phone: Joi.number().integer(),
-
-  email: Joi.string().email({
-    minDomainSegments: 2,
-  }),
-});
-
-const schemaFav = Joi.object({
-  favorite: Joi.boolean().required(),
-});
+const { schema, schemaFav } = require("./contactsValidator");
 
 router.get("/", async (req, res, next) => {
   const list = await contacts.listContacts();
