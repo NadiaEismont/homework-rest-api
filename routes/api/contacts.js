@@ -13,6 +13,10 @@ const schema = Joi.object({
   }),
 });
 
+const schemaFav = Joi.object({
+  favorite: Joi.boolean().required(),
+});
+
 router.get("/", async (req, res, next) => {
   const list = await contacts.listContacts();
   res.json({
@@ -77,7 +81,8 @@ router.put("/:contactId", async (req, res, next) => {
 
   await contacts.removeContact(contactId);
   const { name, email, phone, favorite } = req.body;
-  if (!name || !email || !phone) {
+  const { error } = schema.validate({ name, email, phone });
+  if (error) {
     res.status(400).json({ message: "missing required name field" });
     return;
   }
@@ -100,8 +105,8 @@ router.put("/:contactId", async (req, res, next) => {
 router.patch("/:contactId/favorite", async (req, res, next) => {
   const { contactId } = req.params;
   const { favorite } = req.body;
-
-  if (!favorite) {
+  const { error } = schemaFav.validate({ favorite });
+  if (error) {
     res.status(400).json({ message: "missing field favorite" });
     return;
   }
@@ -122,9 +127,9 @@ router.patch("/:contactId/favorite", async (req, res, next) => {
         data: "Not Found",
       });
     }
-  } catch (e) {
-    console.error(e);
-    next(e);
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
 });
 
