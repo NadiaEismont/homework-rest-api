@@ -6,13 +6,18 @@
     "start": "cross-env NODE_ENV=production node ./server.js",
     "start:dev": "cross-env NODE_ENV=development nodemon ./server.js",
     "lint": "eslint **/*.js",
-    "lint:fix": "eslint --fix **/*.js"
+    "lint:fix": "eslint --fix **/*.js",
+    "debug": "node server.js"
   },
+  "envFile": "${workspaceFolder}/.env",
   "dependencies": {
     "cors": "2.8.5",
     "cross-env": "7.0.3",
+    "dotenv": "^16.0.3",
     "express": "4.17.1",
     "joi": "^17.8.3",
+    "mongodb": "^5.1.0",
+    "mongoose": "^7.0.1",
     "morgan": "1.10.0",
     "nanoid": "^3.0.0"
   },
@@ -24,5 +29,18 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "5.2.0",
     "nodemon": "2.0.15"
-  }
+  },
+  "description": "",
+  "main": ".eslintrc.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NadiaEismont/homework-rest-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NadiaEismont/homework-rest-api/issues"
+  },
+  "homepage": "https://github.com/NadiaEismont/homework-rest-api#readme"
 }
