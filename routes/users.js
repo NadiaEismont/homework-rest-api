@@ -24,7 +24,9 @@ router.post("/users/register", async (req, res, next) => {
     res.status(409).json({ message: "Email in use" });
   }
 
-  const addUser = await User.create({ email, password });
+  const addUser = await User.create({ email });
+  addUser.setPassword(password);
+  await addUser.save();
   res.status(201).json({
     user: {
       email: email,
@@ -44,7 +46,7 @@ router.post("/users/login", async (req, res, next) => {
   if (user) {
     res.status(409).json({ message: "Email in use" });
   }
-  if (password === user.password) {
+  if (user.validPassword(password)) {
     // створення токена
 
     const payload = { email: user.email, subscription: user.subscription };
@@ -69,13 +71,11 @@ router.post("/users/login", async (req, res, next) => {
 
 router.post("/users/logout", auth, async (req, res, next) => {
   req.user.token = null;
-  req.user.save();
+  await req.user.save();
   res.status(204);
 });
 
 router.post("/users/current", auth, async (req, res, next) => {
-  req.user.token = null;
-  req.user.save();
   res.status(200).json({
     user: {
       email: req.user.email,

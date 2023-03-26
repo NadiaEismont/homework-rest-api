@@ -1,4 +1,4 @@
-const contacts = require("../../models/contacts");
+const contacts = require("../models/contacts");
 const { schema, schemaFav } = require("./contactsValidator");
 
 exports.listContacts = async (req, res, next) => {
