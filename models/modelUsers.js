@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
-const users = new Schema({
+const user = new Schema({
   password: {
     type: String,
     required: [true, "Set password for user"],
@@ -19,6 +19,6 @@ const users = new Schema({
   token: String,
 });
 
-const Users = mongoose.model("user", users);
+const User = mongoose.model("users", user);
 
-module.exports = Users;
+module.exports = User;
