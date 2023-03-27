@@ -22,9 +22,10 @@ router.post("/users/register", async (req, res, next) => {
   const user = await User.findOne({ email });
   if (user) {
     res.status(409).json({ message: "Email in use" });
+    return;
   }
 
-  const addUser = await User.create({ email });
+  const addUser = new User({ email });
   addUser.setPassword(password);
   await addUser.save();
   res.status(201).json({
@@ -83,3 +84,5 @@ router.post("/users/current", auth, async (req, res, next) => {
     },
   });
 });
+
+module.exports = router;
