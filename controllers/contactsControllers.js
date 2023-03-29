@@ -1,7 +1,7 @@
-const contacts = require("../models/contacts");
-const { schema, schemaFav } = require("./contactsValidator");
+const contacts = require("../services/contacts");
+const { schema, schemaFav } = require("../utils/contactsValidationSchemas");
 
-exports.listContacts = async (req, res, next) => {
+exports.listContacts = async (req, res) => {
   const list = await contacts.listContacts();
   res.json({
     status: "success",
@@ -10,7 +10,7 @@ exports.listContacts = async (req, res, next) => {
   });
 };
 
-exports.getContactById = async (req, res, next) => {
+exports.getContactById = async (req, res) => {
   const { contactId } = req.params;
 
   const contactById = await contacts.getContactById(contactId);
@@ -25,7 +25,7 @@ exports.getContactById = async (req, res, next) => {
   });
 };
 
-exports.createContact = async (req, res, next) => {
+exports.createContact = async (req, res) => {
   const { name, email, phone } = req.body;
   const { error } = schema.validate({ name, email, phone });
   if (error) {
@@ -40,7 +40,7 @@ exports.createContact = async (req, res, next) => {
   });
 };
 
-exports.deleteContact = async (req, res, next) => {
+exports.deleteContact = async (req, res) => {
   const { contactId } = req.params;
 
   const contactById = await contacts.getContactById(contactId);
@@ -55,7 +55,7 @@ exports.deleteContact = async (req, res, next) => {
   });
 };
 
-exports.updateContact = async (req, res, next) => {
+exports.updateContact = async (req, res) => {
   const { contactId } = req.params;
 
   const contactById = await contacts.getContactById(contactId);

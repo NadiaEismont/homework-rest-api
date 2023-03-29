@@ -3,7 +3,7 @@ const router = express.Router();
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
 const { auth } = require("../middleware/auth");
-const User = require("../models/modelUsers");
+const User = require("../models/User");
 
 const schema = Joi.object({
   password: Joi.string().min(3).max(30).required(),

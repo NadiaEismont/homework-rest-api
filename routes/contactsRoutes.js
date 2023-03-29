@@ -9,7 +9,7 @@ const {
   deleteContact,
   updateContact,
   setFav,
-} = require("../controllers/contactsFN");
+} = require("../controllers/contactsControllers");
 
 router.get("/", listContacts);
 
