@@ -44,8 +44,8 @@ router.post("/users/login", async (req, res, next) => {
     return;
   }
   const user = await User.findOne({ email });
-  if (user) {
-    res.status(409).json({ message: "Email in use" });
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
   }
   if (user.validPassword(password)) {
     // створення токена
