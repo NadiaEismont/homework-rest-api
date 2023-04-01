@@ -1,18 +1,16 @@
-const express = require("express");
-const router = express.Router();
-const contacts = require("../../models/contacts");
-const { schema, schemaFav } = require("./contactsValidator");
+const contacts = require("../services/contacts");
+const { schema, schemaFav } = require("../utils/contactsValidationSchemas");
 
-router.get("/", async (req, res, next) => {
+exports.listContacts = async (req, res) => {
   const list = await contacts.listContacts();
   res.json({
     status: "success",
     code: 200,
     data: list,
   });
-});
+};
 
-router.get("/:contactId", async (req, res, next) => {
+exports.getContactById = async (req, res) => {
   const { contactId } = req.params;
 
   const contactById = await contacts.getContactById(contactId);
@@ -25,9 +23,9 @@ router.get("/:contactId", async (req, res, next) => {
     code: 200,
     data: { contactById },
   });
-});
+};
 
-router.post("/", async (req, res, next) => {
+exports.createContact = async (req, res) => {
   const { name, email, phone } = req.body;
   const { error } = schema.validate({ name, email, phone });
   if (error) {
@@ -40,9 +38,9 @@ router.post("/", async (req, res, next) => {
     code: 201,
     data: { addContact },
   });
-});
+};
 
-router.delete("/:contactId", async (req, res, next) => {
+exports.deleteContact = async (req, res) => {
   const { contactId } = req.params;
 
   const contactById = await contacts.getContactById(contactId);
@@ -55,9 +53,9 @@ router.delete("/:contactId", async (req, res, next) => {
     code: 200,
     data: { contactById },
   });
-});
+};
 
-router.put("/:contactId", async (req, res, next) => {
+exports.updateContact = async (req, res) => {
   const { contactId } = req.params;
 
   const contactById = await contacts.getContactById(contactId);
@@ -86,9 +84,9 @@ router.put("/:contactId", async (req, res, next) => {
     code: 201,
     data: { addContact },
   });
-});
+};
 
-router.patch("/:contactId/favorite", async (req, res, next) => {
+exports.setFav = async (req, res, next) => {
   const { contactId } = req.params;
   const { favorite } = req.body;
   const { error } = schemaFav.validate({ favorite });
@@ -117,6 +115,4 @@ router.patch("/:contactId/favorite", async (req, res, next) => {
     console.error(error);
     next(error);
   }
-});
-
-module.exports = router;
+};
