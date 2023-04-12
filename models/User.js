@@ -18,6 +18,7 @@ const user = new Schema({
     default: "starter",
   },
   token: String,
+  avatarURL: String,
 });
 
 user.methods.setPassword = function (password) {
