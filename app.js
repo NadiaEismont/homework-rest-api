@@ -14,6 +14,9 @@ app.use(logger(formatsLogger));
 app.use(cors());
 app.use(express.json());
 
+// static serving from `/public`
+app.use(express.static('public'));
+
 app.use("/api/contacts", contactsRouter);
 app.use("/api", users);
 
@@ -21,7 +24,7 @@ app.use((req, res) => {
   res.status(404).json({
     status: "error",
     code: 404,
-    message: "missing required name field",
+    message: "page not found",
   });
 });
 
