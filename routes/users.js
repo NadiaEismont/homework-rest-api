@@ -61,8 +61,8 @@ router.post("/users/login", async (req, res, next) => {
     // створення токена
 
     const payload = { id: user.id, email: user.email, subscription: user.subscription };
-    const secret = process.env.ACCESS_TOKEN_SECRET;
-    const token = jwt.sign(payload, secret);
+    const { ACCESS_TOKEN_SECRET } = process.env;
+    const token = jwt.sign(payload, ACCESS_TOKEN_SECRET);
 
     user.token = token;
     await user.save();
