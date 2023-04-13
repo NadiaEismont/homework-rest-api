@@ -1,17 +1,17 @@
 const express = require("express");
-const router = express.Router();
+const fs = require("fs").promises;
+const gravatar = require("gravatar");
+const Jimp = require("jimp");
 const Joi = require("joi");
 const jwt = require("jsonwebtoken");
-const { auth } = require("../middleware/auth");
-const User = require("../models/User");
-const gravatar = require("gravatar");
-const path = require('path');
-const fs = require("fs").promises;
-const Jimp = require("jimp");
-const { nanoid } = require('nanoid')
+const multer = require("multer");
+const { nanoid } = require("nanoid");
+const path = require("path");
 
 const { uploadDir, storeImage } = require("../common");
-const multer = require("multer");
+const { auth } = require("../middleware/auth");
+const User = require("../models/User");
+const { sendVerificationEmail } = require("../utils/sendEmail");
 
 const schema = Joi.object({
   password: Joi.string().min(3).max(30).required(),
@@ -19,6 +19,16 @@ const schema = Joi.object({
     minDomainSegments: 2,
   }),
 });
+
+const schemaVerify = Joi.object({
+  email: Joi.string()
+    .email({
+      minDomainSegments: 2,
+    })
+    .required(),
+});
+
+const router = express.Router();
 
 router.post("/users/register", async (req, res, next) => {
   const { email, password } = req.body;
@@ -33,16 +43,67 @@ router.post("/users/register", async (req, res, next) => {
     return;
   }
 
-  const avatarURL = gravatar.url("emerleite@gmail.com", { protocol: "https", s: "100" });
+  const avatarURL = gravatar.url(email, { protocol: "https", s: "100" });
+  const verificationToken = nanoid();
 
-  const addUser = new User({ email, avatarURL });
+  const addUser = new User({ email, avatarURL, verificationToken });
   addUser.setPassword(password);
   await addUser.save();
+
+  sendVerificationEmail(email, verificationToken);
+
   res.status(201).json({
     user: {
       email: email,
       subscription: "starter",
     },
+  });
+});
+
+router.post("/users/verify", async (req, res, next) => {
+  const { value, error } = schemaVerify.validate(req.body);
+  if (error) {
+    res.status(400).json({ message: "missing required field email" });
+    return;
+  }
+  const email = value.email;
+
+  // шукаємо користувача
+  const user = await User.findOne({ email });
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+    return;
+  }
+
+  if (user.verify) {
+    res.status(400).json({
+      message: "Verification has already been passed",
+    });
+    return;
+  }
+
+  sendVerificationEmail(email, user.verificationToken);
+
+  res.status(200).json({
+    message: "Verification email sent",
+  });
+});
+
+router.get("/users/verify/:verificationToken", async (req, res, next) => {
+  const { verificationToken } = req.params;
+
+  // шукаємо користувача
+  const user = await User.findOne({ verificationToken });
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+    return;
+  }
+
+  user.verificationToken = null;
+  user.verify = true;
+  await user.save();
+  res.status(200).json({
+    message: "Verification successful",
   });
 });
 
@@ -58,8 +119,12 @@ router.post("/users/login", async (req, res, next) => {
     res.status(404).json({ message: "User not found" });
   }
   if (user.validPassword(password)) {
-    // створення токена
+    if (!user.verify) {
+      res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
 
+    // створення токена
     const payload = { id: user.id, email: user.email, subscription: user.subscription };
     const { ACCESS_TOKEN_SECRET } = process.env;
     const token = jwt.sign(payload, ACCESS_TOKEN_SECRET);
@@ -118,7 +183,7 @@ router.patch("/users/avatars", auth, upload.single("avatar"), async (req, res, n
   const fileName = path.join(storeImage, uniqueAvatarName);
   try {
     const avatar = await Jimp.read(temporaryName);
-    avatar.resize(250, 250) // resize
+    avatar.resize(250, 250); // resize
     await avatar.writeAsync(temporaryName); // save
 
     await fs.rename(temporaryName, fileName);
@@ -128,8 +193,8 @@ router.patch("/users/avatars", auth, upload.single("avatar"), async (req, res, n
   }
 
   // save to DB
-  const avatarURL = `localhost:3000/avatars/${uniqueAvatarName}`
-  req.user.avatarURL = avatarURL
+  const avatarURL = `localhost:3000/avatars/${uniqueAvatarName}`;
+  req.user.avatarURL = avatarURL;
   await req.user.save();
 
   res.status(200).json({ avatarURL });
