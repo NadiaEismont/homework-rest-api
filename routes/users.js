@@ -68,7 +68,6 @@ router.post("/users/verify", async (req, res, next) => {
   }
   const email = value.email;
 
-  // шукаємо користувача
   const user = await User.findOne({ email });
   if (!user) {
     res.status(404).json({ message: "User not found" });
@@ -92,7 +91,6 @@ router.post("/users/verify", async (req, res, next) => {
 router.get("/users/verify/:verificationToken", async (req, res, next) => {
   const { verificationToken } = req.params;
 
-  // шукаємо користувача
   const user = await User.findOne({ verificationToken });
   if (!user) {
     res.status(404).json({ message: "User not found" });
@@ -124,7 +122,6 @@ router.post("/users/login", async (req, res, next) => {
       return;
     }
 
-    // створення токена
     const payload = { id: user.id, email: user.email, subscription: user.subscription };
     const { ACCESS_TOKEN_SECRET } = process.env;
     const token = jwt.sign(payload, ACCESS_TOKEN_SECRET);
@@ -177,7 +174,6 @@ const upload = multer({
 });
 
 router.patch("/users/avatars", auth, upload.single("avatar"), async (req, res, next) => {
-  // const { description } = req.body;
   const { path: temporaryName } = req.file;
   const uniqueAvatarName = nanoid() + ".jpg";
   const fileName = path.join(storeImage, uniqueAvatarName);

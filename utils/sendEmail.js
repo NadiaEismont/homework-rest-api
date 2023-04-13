@@ -19,7 +19,6 @@ const transporter = nodemailer.createTransport(config);
 
 
 exports.sendVerificationEmail = (email, verificationToken) => {
-    // відправити email на пошту користувача
     const emailOptions = {
         from: EMAIL_USER,
         to: email,
